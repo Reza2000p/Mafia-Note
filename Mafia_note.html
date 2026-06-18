@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دستیار تخصصی مافیا</title>
+    <!-- Tailwind CSS & Alpine.js -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%D8%AF%D8%B3%D8%AA%DB%8C%D8%A7%D8%B1%20%D9%85%D8%A7%D9%81%DB%8C%D8%A7%20-%20%D8%B1%D8%B6%D8%A7%20%D9%BE%D8%A7%DA%A1%D8%AF%D9%84%22%2C%22short_name%22%3A%22%D9%85%D8%A7%D9%81%DB%8C%D8%A7%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230b0f19%22%2C%22theme_color%22%3A%22%23dc2626%22%7D">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;700&display=swap');
+        body { font-family: 'Vazirmatn', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen pb-24" x-data="mafiaApp()">
+
+    <!-- Header -->
+    <header class="bg-slate-900 p-4 shadow-md sticky top-0 z-40 flex justify-between items-center border-b border-slate-800">
+        <div>
+            <h1 class="text-base font-bold text-red-500">🎩 دستیار پیشرفته مافیا</h1>
+            <p class="text-[10px] text-gray-500">طراح: رضا پاکدل</p>
+        </div>
+        <div class="flex gap-2" x-show="gameStarted && activeTab !== 'gameover'">
+            <button @click="activeTab = 'gameover'" class="bg-red-600 hover:bg-red-700 text-xs px-3 py-1.5 rounded-lg font-bold transition">اتمام بازی 🏁</button>
+        </div>
+        <div x-show="!gameStarted">
+            <button @click="showInstallGuide = true" class="bg-blue-600 hover:bg-blue-500 text-xs px-3 py-1.5 rounded-lg font-bold transition">📲 نصب اپ</button>
+        </div>
+    </header>
+
+    <!-- SETUP SCREEN (Before Game Starts) -->
+    <div x-show="!gameStarted" class="p-6 max-w-md mx-auto my-8 bg-slate-900 rounded-2xl border border-slate-800 shadow-xl space-y-6">
+        <div class="text-center">
+            <span class="text-4xl">⚙️</span>
+            <h2 class="text-xl font-bold mt-2 text-red-500">تنظیمات بازی جدید</h2>
+            <p class="text-xs text-slate-400 mt-1">تعداد پلیرها را از لیست سریع انتخاب کنید:</p>
+        </div>
+        
+        <!-- Grid of fast player counts -->
+        <div class="grid grid-cols-4 gap-2">
+            <template x-for="count in [8, 10, 11, 12, 13, 14, 15, 16]">
+                <button @click="setPlayerCountAndStart(count)" class="bg-slate-950 border border-slate-800 hover:border-red-500 p-3 rounded-xl font-bold text-xs text-white transition" x-text="count + ' پلیر'"></button>
+            </template>
+        </div>
+
+        <!-- Custom player counts -->
+        <div class="pt-4 border-t border-slate-800 space-y-2">
+            <label class="block text-xs text-slate-400">تعداد دلخواه پلیر:</label>
+            <div class="flex gap-2">
+                <input type="number" x-model.number="customPlayerCount" placeholder="مثلا: 18" class="flex-1 bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-center font-bold text-white focus:outline-none focus:border-red-500">
+                <button @click="setPlayerCountAndStart(customPlayerCount)" class="bg-red-600 hover:bg-red-500 px-4 py-2.5 rounded-xl text-xs font-bold transition">تایید و شروع</button>
+            </div>
+        </div>
+
+        <div class="text-center pt-4 border-t border-slate-800 text-xs text-slate-500">
+            طراحی و توسعه تخصصی: <span class="text-slate-400 font-bold">رضا پاکدل</span>
+        </div>
+    </div>
+
+    <!-- MAIN APP INTERFACE -->
+    <main x-show="gameStarted" class="p-4 max-w-md mx-auto">
+
+        <!-- TAB 1: DASHBOARD (Home Screen) -->
+        <div x-show="activeTab === 'dashboard'" class="space-y-4 animate-fade-in">
+            <h2 class="text-lg font-bold border-b border-slate-800 pb-2">📊 دشبورد و وضعیت بازی</h2>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-slate-900 p-4 rounded-xl text-center border border-slate-800">
+                    <p class="text-slate-400 text-xs">پلیرهای زنده 🟢</p>
+                    <p class="text-2xl font-bold text-green-400" x-text="players.filter(p => p.status === 'alive').length"></p>
+                </div>
+                <div class="bg-slate-900 p-4 rounded-xl text-center border border-slate-800">
+                    <p class="text-slate-400 text-xs">پلیرهای حذف شده 💀</p>
+                    <p class="text-2xl font-bold text-red-400" x-text="players.filter(p => p.status === 'dead').length"></p>
+                </div>
+            </div>
+
+            <!-- PINNED / FLAG LIST (نوبت صحبت) -->
+            <div class="bg-slate-900 p-4 rounded-xl border border-yellow-600/30">
+                <h3 class="text-sm font-bold mb-3 text-yellow-500 flex items-center gap-1">📌 لیست نوبت صحبت (نشان‌شده‌ها)</h3>
+                <div class="space-y-2">
+                    <template x-for="p in players.filter(p => p.flaggedForTalk)" :key="p.id">
+                        <div class="bg-slate-950 p-3 rounded-lg border-r-4 border-yellow-500 flex justify-between items-start gap-2">
+                            <div class="flex-1">
+                                <p class="text-xs font-bold text-white" x-text="'پلیر ' + p.id + ': ' + p.name"></p>
+                                <p class="text-xs text-yellow-400/85 mt-1" x-text="p.talkNote || 'یادداشتی برای صحبت نوشته نشده است.'"></p>
+                            </div>
+                            <button @click="unflagPlayer(p.id)" class="bg-yellow-600/20 hover:bg-yellow-600/40 text-yellow-500 text-[10px] px-2 py-1 rounded font-bold">
+                                صحبت شد ✔️
+                            </button>
+                        </div>
+                    </template>
+                    <p x-show="players.filter(p => p.flaggedForTalk).length === 0" class="text-xs text-slate-500 text-center py-2">هیچ پلیری نشان‌گذاری نشده است.</p>
+                </div>
+            </div>
+
+            <!-- Quick Player List Overview -->
+            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+                <h3 class="text-sm font-bold mb-3 text-slate-350">وضعیت سریع پلیرها</h3>
+                <div class="grid grid-cols-4 gap-2">
+                    <template x-for="player in players" :key="player.id">
+                        <button 
+                            @click="viewPlayerProfile(player.id)"
+                            :class="player.status === 'dead' ? 'bg-slate-800 text-slate-600 line-through border-transparent' : 'bg-slate-950 text-white border border-slate-800'"
+                            class="p-2 rounded-lg text-center text-xs font-bold truncate">
+                            <span x-text="player.id + '.' + player.name"></span>
+                        </button>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: NOTES SECTION (Step-by-Step) -->
+        <div x-show="activeTab === 'notes'" class="space-y-4">
+            <!-- Day Selector Bar -->
+            <div class="flex overflow-x-auto gap-2 py-1 border-b border-slate-800 scrollbar-none">
+                <template x-for="day in dayOptions" :key="day.id">
+                    <button 
+                        @click="currentDay = day.id"
+                        :class="currentDay === day.id ? 'bg-red-600 text-white' : 'bg-slate-900 text-slate-400'"
+                        class="px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition"
+                        x-text="day.label">
+                    </button>
+                </template>
+            </div>
+
+            <!-- Player Step-by-Step Box -->
+            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+                
+                <!-- Prev / Next Buttons AT THE TOP of the Card -->
+                <div class="flex justify-between items-center bg-slate-950 p-2 rounded-xl mb-4 border border-slate-800">
+                    <button @click="prevPlayer()" class="bg-slate-800 hover:bg-slate-750 text-white px-3 py-1.5 rounded-lg text-xs font-bold">◀️ قبلی</button>
+                    <div class="flex items-center gap-1.5">
+                        <span class="bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs" x-text="players[currentNotePlayerIndex].id"></span>
+                        <input type="text" x-model="players[currentNotePlayerIndex].name" class="bg-transparent border-b border-slate-800 font-bold text-sm text-center focus:outline-none focus:border-red-500 w-28 text-white">
+                    </div>
+                    <button @click="nextPlayer()" class="bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold">بعدی ▶️</button>
+                </div>
+
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-xs text-slate-400">ویرایش پلیر <span x-text="currentNotePlayerIndex + 1"></span> از <span x-text="playerCount"></span></span>
+                    <!-- Alive/Dead Switch -->
+                    <button 
+                        @click="togglePlayerStatus(currentNotePlayerIndex)"
+                        :class="players[currentNotePlayerIndex].status === 'alive' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'"
+                        class="px-2.5 py-1 rounded text-xs font-bold"
+                        x-text="players[currentNotePlayerIndex].status === 'alive' ? '🟢 زنده' : '💀 حذف شده'">
+                    </button>
+                </div>
+
+                <!-- Pinned for Speech (نشان برای صحبت) -->
+                <div class="mb-4 bg-slate-950 p-3 rounded-lg border border-slate-800">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-300">📌 تیک نشان برای نوبت صحبت:</span>
+                        <input type="checkbox" x-model="players[currentNotePlayerIndex].flaggedForTalk" class="w-4 h-4 text-red-600 bg-slate-900 border-slate-700 rounded focus:ring-red-500">
+                    </div>
+                    <div x-show="players[currentNotePlayerIndex].flaggedForTalk" class="mt-2">
+                        <input type="text" x-model="players[currentNotePlayerIndex].talkNote" placeholder="علت نشان کردن یا خلاصه نوت برای صحبت..." class="w-full bg-slate-900 border border-slate-800 p-2 rounded text-xs text-white placeholder-gray-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- Input: Guess Role -->
+                <div class="mb-4">
+                    <label class="block text-xs text-slate-400 mb-1">نقش / ساید حدسی:</label>
+                    <input type="text" x-model="players[currentNotePlayerIndex].role" placeholder="مثلاً: مافیا، تفنگدار..." class="w-full bg-slate-950 border border-slate-800 p-2 rounded-lg text-sm text-white focus:outline-none focus:border-red-500">
+                </div>
+
+                <!-- Select Targets for Current Day -->
+                <div class="mb-4">
+                    <label class="block text-xs text-slate-400 mb-1">🎯 تارگت‌های امروز (انتخاب شماره):</label>
+                    <div class="grid grid-cols-6 gap-1">
+                        <template x-for="i in playerCount">
+                            <button 
+                                x-show="i !== players[currentNotePlayerIndex].id"
+                                @click="toggleTarget(currentNotePlayerIndex, currentDay, i)"
+                                :class="hasTarget(currentNotePlayerIndex, currentDay, i) ? 'bg-red-600 border-red-500 text-white font-bold' : 'bg-slate-950 border border-slate-800 text-slate-400'"
+                                class="p-1.5 rounded text-xs font-bold text-center transition"
+                                x-text="i">
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Select Covers for Current Day -->
+                <div class="mb-4">
+                    <label class="block text-xs text-slate-400 mb-1">🛡️ حمایت‌ها / کاورهای امروز (انتخاب شماره):</label>
+                    <div class="grid grid-cols-6 gap-1">
+                        <template x-for="i in playerCount">
+                            <button 
+                                x-show="i !== players[currentNotePlayerIndex].id"
+                                @click="toggleCover(currentNotePlayerIndex, currentDay, i)"
+                                :class="hasCover(currentNotePlayerIndex, currentDay, i) ? 'bg-green-600 border-green-500 text-white font-bold' : 'bg-slate-950 border border-slate-800 text-slate-400'"
+                                class="p-1.5 rounded text-xs font-bold text-center transition"
+                                x-text="i">
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Free Text Notes for Current Day -->
+                <div class="mb-2">
+                    <label class="block text-xs text-slate-400 mb-1">📝 یادداشت‌های این روز:</label>
+                    <textarea 
+                        x-model="players[currentNotePlayerIndex].notes[currentDay]" 
+                        rows="3" 
+                        placeholder="نکات گفتاری، فکت‌ها، سوتی‌ها..." 
+                        class="w-full bg-slate-950 border border-slate-800 p-2 rounded-lg text-xs text-white focus:outline-none focus:border-red-500">
+                    </textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: VOTING SYSTEM -->
+        <div x-show="activeTab === 'voting'" class="space-y-4">
+            <!-- Voting Day Selector -->
+            <div class="flex overflow-x-auto gap-2 py-1 border-b border-slate-800">
+                <template x-for="day in dayOptions.filter(d => d.id !== 'intro')" :key="day.id">
+                    <button 
+                        @click="votingDay = day.id"
+                        :class="votingDay === day.id ? 'bg-red-600 text-white' : 'bg-slate-900 text-slate-400'"
+                        class="px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap"
+                        x-text="'رای‌گیری ' + day.label">
+                    </button>
+                </template>
+            </div>
+
+            <!-- Round Toggle -->
+            <div class="flex rounded-lg bg-slate-900 p-1 border border-slate-800">
+                <button @click="votingRound = 1" :class="votingRound === 1 ? 'bg-red-600 text-white' : 'text-slate-400'" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition">راند اول (دفاعیه)</button>
+                <button @click="votingRound = 2" :class="votingRound === 2 ? 'bg-red-600 text-white' : 'text-slate-400'" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition">راند دوم (اخراج)</button>
+            </div>
+
+            <!-- STEP-BY-STEP VOTING INTERFACE -->
+            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-4">
+                
+                <!-- Prev / Next Buttons AT THE TOP of the Card -->
+                <div class="flex justify-between items-center bg-slate-950 p-2 rounded-xl border border-slate-800">
+                    <button @click="prevVotingCandidate()" class="bg-slate-800 hover:bg-slate-750 text-white px-3 py-1.5 rounded-lg text-xs font-bold">◀️ قبلی</button>
+                    <div class="flex items-center gap-1.5">
+                        <span class="bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs" x-text="currentVotingCandidateIndex + 1"></span>
+                        <span class="font-bold text-sm text-center" x-text="getPlayerName(currentVotingCandidateIndex + 1)"></span>
+                    </div>
+                    <button @click="nextVotingCandidate()" class="bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold">بعدی ▶️</button>
+                </div>
+
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-gray-400">کاندید <span x-text="currentVotingCandidateIndex + 1"></span> از <span x-text="playerCount"></span></span>
+                    <span class="text-xs font-bold text-yellow-500" x-text="votingRound === 1 ? 'کاندید ورود به دفاعیه' : 'کاندید نهایی اخراج'"></span>
+                </div>
+
+                <!-- Grid of Voters -->
+                <div>
+                    <label class="block text-xs text-gray-400 mb-2">چه کسانی دست بلند کردند؟ (انتخاب سریع شماره‌ها):</label>
+                    <div class="grid grid-cols-6 gap-1.5">
+                        <template x-for="i in playerCount">
+                            <button 
+                                x-show="i !== currentVotingCandidateIndex + 1"
+                                @click="toggleVote(votingDay, votingRound, currentVotingCandidateIndex + 1, i)"
+                                :class="isVoted(votingDay, votingRound, currentVotingCandidateIndex + 1, i) ? 'bg-red-600 border-red-500 text-white' : 'bg-slate-950 border border-slate-800 text-slate-500'"
+                                class="p-2.5 border rounded-lg text-xs font-bold transition"
+                                x-text="i">
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Summary -->
+                <div class="bg-slate-950 p-2.5 rounded-lg flex justify-between items-center text-xs">
+                    <span class="text-gray-400">جمع کل آرا:</span>
+                    <span class="bg-red-950 text-red-400 font-bold px-2.5 py-1 rounded-lg" x-text="getVoteCount(votingDay, votingRound, currentVotingCandidateIndex + 1) + ' رای'"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: PLAYER DETAILED PROFILE -->
+        <div x-show="activeTab === 'profiles'" class="space-y-4">
+            <h2 class="text-lg font-bold border-b border-slate-800 pb-2">📂 پرونده تجمیعی پلیر</h2>
+            
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">انتخاب پلیر:</label>
+                <select x-model.number="profilePlayerId" class="w-full bg-slate-900 border border-slate-800 p-2.5 rounded-lg text-sm text-white focus:outline-none">
+                    <template x-for="p in players" :key="p.id">
+                        <option :value="p.id" x-text="p.id + '. ' + p.name"></option>
+                    </template>
+                </select>
+            </div>
+
+            <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                    <div>
+                        <h3 class="text-xl font-bold" x-text="players[profilePlayerId-1].name"></h3>
+                        <p class="text-xs text-slate-400 mt-1">حدس ساید: <span class="text-red-400 font-bold" x-text="players[profilePlayerId-1].role || 'نامعلوم'"></span></p>
+                    </div>
+                    <span :class="players[profilePlayerId-1].status === 'alive' ? 'bg-green-950 text-green-400' : 'bg-red-950 text-red-400'" class="px-3 py-1.5 rounded-lg text-xs font-bold" x-text="players[profilePlayerId-1].status === 'alive' ? 'زنده' : 'حذف شده'"></span>
+                </div>
+
+                <div class="space-y-3">
+                    <h4 class="text-sm font-bold text-gray-300">روند عملکرد روزانه پلیر:</h4>
+                    <template x-for="day in dayOptions" :key="day.id">
+                        <div class="bg-black p-3 rounded-lg border-r-2 border-gray-800">
+                            <h5 class="text-xs font-bold text-gray-400 mb-2" x-text="day.label"></h5>
+                            <div class="space-y-1.5 text-xs">
+                                <p>🎯 <span class="text-gray-500">تارگت به:</span> <span class="text-red-400 font-bold" x-text="players[profilePlayerId-1].targets[day.id]?.join(', ') || 'هیچکس'"></span></p>
+                                <p>🛡️ <span class="text-gray-500">حمایت از:</span> <span class="text-green-400 font-bold" x-text="players[profilePlayerId-1].covers[day.id]?.join(', ') || 'هیچکس'"></span></p>
+                                <p>📝 <span class="text-gray-500">نوت ثبت شده:</span> <span class="text-white font-bold block mt-1" x-text="players[profilePlayerId-1].notes[day.id] || 'ندارد'"></span></p>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="space-y-3 border-t border-slate-800 pt-3">
+                    <h4 class="text-sm font-bold text-gray-300">📊 تاریخچه آرای ثبت شده پلیر:</h4>
+                    <template x-for="day in dayOptions.filter(d => d.id !== 'intro')" :key="day.id">
+                        <div class="bg-black p-2 rounded text-xs space-y-1 border border-gray-800">
+                            <h5 class="font-bold text-gray-400" x-text="day.label"></h5>
+                            <p>🗳️ <span class="text-gray-500">رای‌های داده شده توسط او:</span> <span class="text-white font-bold" x-text="getVotesCastByPlayer(day.id, profilePlayerId)"></span></p>
+                            <p>⚖️ <span class="text-gray-500">رای‌های گرفته شده برای دفاعیه او:</span> <span class="text-red-400 font-bold" x-text="getVotesReceivedByPlayer(day.id, profilePlayerId)"></span></p>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 5: GAME OVER / EXPORT SCREEN (Dedicated interface, bottom menu hidden) -->
+        <div x-show="activeTab === 'gameover'" class="space-y-6 animate-fade-in pb-12">
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center space-y-4">
+                <span class="text-5xl">🏁</span>
+                <h2 class="text-2xl font-bold text-red-500">بازی به پایان رسید!</h2>
+                <p class="text-xs text-slate-400 leading-relaxed">یادداشت‌ها، آمار، آرا و تحلیل‌های بازی مافیا با موفقیت ثبت شدند. شما می‌توانید فایل گزارش را در چند قالب شیک دریافت کنید.</p>
+            </div>
+
+            <!-- Return to Game Button -->
+            <button @click="activeTab = 'dashboard'" class="w-full bg-slate-850 hover:bg-slate-800 text-gray-200 py-3 rounded-xl font-bold text-xs transition flex justify-center items-center gap-2 border border-slate-700">
+                <span>↩️</span> بازگشت به بازی و لغو اتمام
+            </button>
+
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4">
+                <h3 class="text-sm font-bold text-gray-200 border-b border-slate-800 pb-2">📂 خروجی‌های مختلف گزارش بازی:</h3>
+                
+                <div class="grid grid-cols-1 gap-2">
+                    <!-- Modern Styled Web Page (HTML) Export -->
+                    <button @click="downloadHtmlReport()" class="w-full bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-500 hover:to-emerald-600 text-white py-3 rounded-xl font-bold text-xs transition flex justify-center items-center gap-2 shadow-lg shadow-green-950">
+                        <span>🌐</span> دانلود گزارش وب شیک رنگی (HTML)
+                    </button>
+                    <!-- Plain text (.TXT) Export -->
+                    <button @click="downloadTxtReport()" class="w-full bg-slate-950 border border-slate-800 hover:border-slate-750 text-white py-2.5 rounded-xl font-bold text-xs transition flex justify-center items-center gap-2">
+                        <span>📄</span> دانلود فایل گزارش ساده متنی (TXT)
+                    </button>
+                    <!-- Share natively via mobile OS -->
+                    <button @click="shareReport()" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl font-bold text-xs transition flex justify-center items-center gap-2">
+                        <span>📤</span> اشتراک‌گذاری مستقیم گزارش (واتس‌اپ/تلگرام)
+                    </button>
+                    <!-- Copy directly to Clipboard -->
+                    <button @click="copyReportToClipboard()" class="w-full bg-slate-950 border border-slate-800 text-slate-350 py-2.5 rounded-xl font-bold text-xs transition flex justify-center items-center gap-2">
+                        <span x-text="copiedToast ? '✔️ کپی شد!' : '📋 کپی کردن گزارش در حافظه'"></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Preview panel of the text report -->
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2">
+                <h3 class="text-xs font-bold text-gray-400">🔎 پیش‌نمایش متنی گزارش:</h3>
+                <textarea readonly class="w-full h-40 bg-black text-slate-400 p-3 rounded-xl text-[11px] font-mono leading-relaxed focus:outline-none border border-slate-800" x-text="generateRawReport()"></textarea>
+            </div>
+
+            <!-- Custom Internal Reset Confirmation Button -->
+            <button @click="showResetModal = true" class="w-full bg-red-600/10 hover:bg-red-600/20 text-red-500 py-3 rounded-xl font-bold text-xs transition border border-red-950">
+                🔄 شروع بازی جدید (حذف کل اطلاعات فعلی)
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Bottom Menu Navigation (Hidden on GameOver tab) -->
+    <nav x-show="gameStarted && activeTab !== 'gameover'" class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-850 py-2 flex justify-around items-center z-40 shadow-xl">
+        <button @click="activeTab = 'dashboard'" :class="activeTab === 'dashboard' ? 'text-red-500 font-bold' : 'text-slate-400'" class="flex flex-col items-center gap-1 text-xs">
+            <span>📊</span> <span>دشبورد</span>
+        </button>
+        <button @click="activeTab = 'notes'" :class="activeTab === 'notes' ? 'text-red-500 font-bold' : 'text-gray-400'" class="flex flex-col items-center gap-1 text-xs">
+            <span>📝</span> <span>نوت پلیرها</span>
+        </button>
+        <button @click="activeTab = 'voting'" :class="activeTab === 'voting' ? 'text-red-500 font-bold' : 'text-gray-400'" class="flex flex-col items-center gap-1 text-xs">
+            <span>🗳️</span> <span>رای‌گیری</span>
+        </button>
+        <button @click="activeTab = 'profiles'" :class="activeTab === 'profiles' ? 'text-red-500 font-bold' : 'text-gray-400'" class="flex flex-col items-center gap-1 text-xs">
+            <span>📂</span> <span>پرونده‌ها</span>
+        </button>
+    </nav>
+
+    <!-- Custom Reset Confirmation Modal (Replaces browser confirm) -->
+    <div x-show="showResetModal" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 animate-fade-in">
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-sm w-full text-center space-y-4">
+            <span class="text-3xl">⚠️</span>
+            <h3 class="text-lg font-bold text-red-500">حذف اطلاعات بازی؟</h3>
+            <p class="text-xs text-slate-400 leading-relaxed">آیا مطمئنید که می‌خواهید بازی فعلی را پاک کنید؟ تمام داده‌ها حذف شده و به صفحه تنظیمات اولیه باز خواهید گشت.</p>
+            <div class="flex gap-2">
+                <button @click="confirmResetGame()" class="flex-1 bg-red-600 hover:bg-red-500 text-white py-2.5 rounded-xl font-bold text-xs transition">بله، حذف و شروع جدید 🔄</button>
+                <button @click="showResetModal = false" class="flex-1 bg-slate-800 hover:bg-slate-750 text-slate-300 py-2.5 rounded-xl font-bold text-xs transition">خیر، بازگشت ❌</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PWA Installation Guide Modal -->
+    <div x-show="showInstallGuide" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" x-transition>
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-sm w-full space-y-4">
+            <h3 class="text-lg font-bold text-blue-400 flex items-center gap-1">📲 راهنمای نصب اپلیکیشن</h3>
+            
+            <div class="space-y-3 text-xs leading-relaxed text-gray-300">
+                <div class="bg-slate-950 p-3 rounded-lg border-l-2 border-blue-500">
+                    <p class="font-bold text-white mb-1">🍎 در گوشی‌های آیفون (Safari):</p>
+                    <p>۱. دکمه <span class="text-blue-400 font-bold">Share (اشتراک‌گذاری)</span> را در پایین صفحه بزنید.</p>
+                    <p>۲. گزینه <span class="text-blue-400 font-bold">Add to Home Screen (افزودن به صفحه اصلی)</span> را انتخاب کنید.</p>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-lg border-l-2 border-green-500">
+                    <p class="font-bold text-white mb-1">🤖 در گوشی‌های اندروید (Chrome):</p>
+                    <p>۱. سه نقطه بالای مرورگر را لمس کنید.</p>
+                    <p>۲. گزینه <span class="text-green-400 font-bold">Install App (یا افزودن به صفحه اصلی)</span> را بزنید.</p>
+                </div>
+            </div>
+
+            <button @click="showInstallGuide = false" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-xl font-bold text-xs transition">متوجه شدم 🆗</button>
+        </div>
+    </div>
+
+    <!-- REGISTER SERVICE WORKER FOR 100% OFFLINE CAPABILITY -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(reg => {
+                    console.log('سرویس ورکر آفلاین با موفقیت فعال شد!');
+                }).catch(err => {
+                    console.log('فعالسازی سرویس ورکر ناموفق بود:', err);
+                });
+            });
+        }
+    </script>
+
+    <!-- Alpine.js Application Logic -->
+    <script>
+        function mafiaApp() {
+            const initialDays = { intro: '', day1: '', day2: '', day3: '', day4: '', day5: '' };
+            const initialDaysArrays = () => ({ intro: [], day1: [], day2: [], day3: [], day4: [], day5: [] });
+
+            return {
+                activeTab: 'dashboard',
+                gameStarted: false,
+                playerCount: 12,
+                customPlayerCount: '',
+                currentNotePlayerIndex: 0,
+                currentVotingCandidateIndex: 0,
+                currentDay: 'intro',
+                votingDay: 'day1',
+                votingRound: 1,
+                profilePlayerId: 1,
+                showInstallGuide: false,
+                showResetModal: false,
+                copiedToast: false,
+
+                dayOptions: [
+                    { id: 'intro', label: 'معارفه 🎤' },
+                    { id: 'day1', label: 'روز ۱ ☀️' },
+                    { id: 'day2', label: 'روز ۲ ☀️' },
+                    { id: 'day3', label: 'روز ۳ ☀️' },
+                    { id: 'day4', label: 'روز ۴ ☀️' },
+                    { id: 'day5', label: 'روز ۵ ☀️' }
+                ],
+
+                players: [],
+                votes: [],
+
+                init() {
+                    const savedPlayers = localStorage.getItem('mafia_players_v4');
+                    const savedVotes = localStorage.getItem('mafia_votes_v4');
+                    const savedCount = localStorage.getItem('mafia_count_v4');
+                    const savedStarted = localStorage.getItem('mafia_started_v4');
+
+                    if (savedStarted === 'true' && savedPlayers) {
+                        this.playerCount = parseInt(savedCount) || 12;
+                        this.players = JSON.parse(savedPlayers);
+                        this.votes = JSON.parse(savedVotes) || [];
+                        this.gameStarted = true;
+                    }
+
+                    this.$watch('players', value => {
+                        if (this.gameStarted) localStorage.setItem('mafia_players_v4', JSON.stringify(value));
+                    }, { deep: true });
+
+                    this.$watch('votes', value => {
+                        if (this.gameStarted) localStorage.setItem('mafia_votes_v4', JSON.stringify(value));
+                    }, { deep: true });
+                },
+
+                setPlayerCountAndStart(count) {
+                    let parsed = parseInt(count);
+                    if (!parsed || parsed < 4 || parsed > 30) {
+                        alert('لطفاً تعداد پلیرها را عددی بین ۴ تا ۳۰ وارد کنید.');
+                        return;
+                    }
+                    this.playerCount = parsed;
+                    this.players = Array.from({ length: this.playerCount }, (_, i) => ({
+                        id: i + 1,
+                        name: `پلیر ${i + 1}`,
+                        status: 'alive',
+                        role: '',
+                        flaggedForTalk: false,
+                        talkNote: '',
+                        notes: { ...initialDays },
+                        targets: initialDaysArrays(),
+                        covers: initialDaysArrays()
+                    }));
+                    this.votes = [];
+                    this.currentNotePlayerIndex = 0;
+                    this.currentVotingCandidateIndex = 0;
+                    this.gameStarted = true;
+                    this.activeTab = 'dashboard';
+
+                    localStorage.setItem('mafia_started_v4', 'true');
+                    localStorage.setItem('mafia_count_v4', parsed.toString());
+                },
+
+                confirmResetGame() {
+                    localStorage.clear();
+                    this.gameStarted = false;
+                    this.players = [];
+                    this.votes = [];
+                    this.playerCount = 12;
+                    this.customPlayerCount = '';
+                    this.showResetModal = false;
+                    this.activeTab = 'dashboard';
+                },
+
+                // Player Note Navigation
+                nextPlayer() {
+                    this.currentNotePlayerIndex = (this.currentNotePlayerIndex + 1) % this.playerCount;
+                },
+                prevPlayer() {
+                    this.currentNotePlayerIndex = (this.currentNotePlayerIndex - 1 + this.playerCount) % this.playerCount;
+                },
+
+                // Candidate Voting Navigation
+                nextVotingCandidate() {
+                    this.currentVotingCandidateIndex = (this.currentVotingCandidateIndex + 1) % this.playerCount;
+                },
+                prevVotingCandidate() {
+                    this.currentVotingCandidateIndex = (this.currentVotingCandidateIndex - 1 + this.playerCount) % this.playerCount;
+                },
+
+                togglePlayerStatus(index) {
+                    this.players[index].status = this.players[index].status === 'alive' ? 'dead' : 'alive';
+                },
+
+                // Targets
+                toggleTarget(playerIndex, dayId, targetId) {
+                    let targetsList = this.players[playerIndex].targets[dayId] || [];
+                    if (targetsList.includes(targetId)) {
+                        this.players[playerIndex].targets[dayId] = targetsList.filter(id => id !== targetId);
+                    } else {
+                        targetsList.push(targetId);
+                        this.players[playerIndex].targets[dayId] = targetsList.sort((a,b)=>a-b);
+                    }
+                },
+                hasTarget(playerIndex, dayId, targetId) {
+                    return (this.players[playerIndex].targets[dayId] || []).includes(targetId);
+                },
+
+                // Covers
+                toggleCover(playerIndex, dayId, coverId) {
+                    let coversList = this.players[playerIndex].covers[dayId] || [];
+                    if (coversList.includes(coverId)) {
+                        this.players[playerIndex].covers[dayId] = coversList.filter(id => id !== coverId);
+                    } else {
+                        coversList.push(coverId);
+                        this.players[playerIndex].covers[dayId] = coversList.sort((a,b)=>a-b);
+                    }
+                },
+                hasCover(playerIndex, dayId, coverId) {
+                    return (this.players[playerIndex].covers[dayId] || []).includes(coverId);
+                },
+
+                // Dynamic Voter Selection Logic
+                toggleVote(day, round, candidateId, voterId) {
+                    let vote = this.votes.find(v => v.day === day && v.round === round && v.candidateId === candidateId);
+                    if (!vote) {
+                        vote = { id: Date.now(), day: day, round: round, candidateId: candidateId, voters: [] };
+                        this.votes.push(vote);
+                    }
+                    if (vote.voters.includes(voterId)) {
+                        vote.voters = vote.voters.filter(id => id !== voterId);
+                    } else {
+                        vote.voters.push(voterId);
+                        this.votes.sort((a,b)=>a-b);
+                    }
+                },
+                isVoted(day, round, candidateId, voterId) {
+                    let vote = this.votes.find(v => v.day === day && v.round === round && v.candidateId === candidateId);
+                    return vote ? vote.voters.includes(voterId) : false;
+                },
+                getVoteCount(day, round, candidateId) {
+                    let vote = this.votes.find(v => v.day === day && v.round === round && v.candidateId === candidateId);
+                    return vote ? vote.voters.length : 0;
+                },
+
+                unflagPlayer(playerId) {
+                    const idx = this.players.findIndex(p => p.id === playerId);
+                    if (idx !== -1) {
+                        this.players[idx].flaggedForTalk = false;
+                        this.players[idx].talkNote = '';
+                    }
+                },
+
+                getPlayerName(id) {
+                    const p = this.players.find(pl => pl.id === id);
+                    return p ? p.name : `پلیر ${id}`;
+                },
+
+                viewPlayerProfile(id) {
+                    this.profilePlayerId = id;
+                    this.activeTab = 'profiles';
+                },
+
+                getVotesCastByPlayer(dayId, playerId) {
+                    let casted = [];
+                    this.votes.forEach(v => {
+                        if (v.day === dayId && v.voters.includes(playerId)) {
+                            let label = v.round === 1 ? 'راند ۱ به ' : 'راند ۲ به ';
+                            casted.push(`${label}${v.candidateId}`);
+                        }
+                    });
+                    return casted.join(' | ') || 'رایی ثبت نشده';
+                },
+
+                getVotesReceivedByPlayer(dayId, playerId) {
+                    let received = this.votes.find(v => v.day === dayId && v.round === 1 && v.candidateId === playerId);
+                    if (received && received.voters.length > 0) {
+                        return `${received.voters.join(', ')} (${received.voters.length} رای)`;
+                    }
+                    return 'رایی ثبت نشده';
+                },
+
+                // REPORT GENERATION LOGIC
+                generateRawReport() {
+                    let r = `====================================\n`;
+                    r += `       گزارش نهایی بازی مافیا       \n`;
+                    r += `       طراح اپلیکیشن: رضا پاکدل      \n`;
+                    r += `====================================\n\n`;
+                    r += `خلاصه وضعیت نهایی بازی:\n`;
+                    r += `- تعداد کل پلیرها: ${this.playerCount}\n`;
+                    r += `- پلیرهای زنده: ${this.players.filter(p => p.status === 'alive').length}\n`;
+                    r += `- پلیرهای حذف شده: ${this.players.filter(p => p.status === 'dead').length}\n\n`;
+                    r += `------------------------------------\n`;
+                    r += ` پرونده و نوت پلیرها به تفکیک روز\n`;
+                    r += `------------------------------------\n`;
+                    this.players.forEach(p => {
+                        r += `\n👤 پلیر ${p.id}: ${p.name} [ساید/نقش حدسی: ${p.role || 'ثبت نشده'}] [وضعیت: ${p.status === 'alive' ? 'زنده' : 'حذف شده'}]\n`;
+                        this.dayOptions.forEach(day => {
+                            r += `  🔹 ${day.label}:\n`;
+                            r += `    - تارگت‌ها به پلیرهای: ${p.targets[day.id]?.join(', ') || 'هیچکس'}\n`;
+                            r += `    - حمایت از پلیرهای: ${p.covers[day.id]?.join(', ') || 'هیچکس'}\n`;
+                            r += `    - یادداشت متنی: ${p.notes[day.id] || 'ندارد'}\n`;
+                        });
+                        r += `....................................\n`;
+                    });
+                    r += `\n------------------------------------\n`;
+                    r += ` خلاصه رای‌گیری‌های بازی\n`;
+                    r += `------------------------------------\n`;
+                    this.dayOptions.filter(d => d.id !== 'intro').forEach(day => {
+                        r += `\n🗓️ ${day.label}:\n`;
+                        [1, 2].forEach(round => {
+                            r += `  ◽ راند ${round === 1 ? 'اول (دفاع)' : 'دوم (اخراج)'}:\n`;
+                            let dayVotes = this.votes.filter(v => v.day === day.id && v.round === round);
+                            if (dayVotes.length > 0) {
+                                dayVotes.forEach(v => {
+                                    r += `    - کاندیدا [پلیر ${v.candidateId}]: ${v.voters.length} رای از طرف پلیرهای (${v.voters.join(', ') || 'هیچکس'})\n`;
+                                });
+                            } else {
+                                r += `    - رای‌گیری ثبت نشده است.\n`;
+                            }
+                        });
+                    });
+                    r += `\n====================================\n`;
+                    r += `پایان گزارش بازی - طراحی شده توسط رضا پاکدل`;
+                    return r;
+                },
+
+                // Secure Concatenation HTML Generator (Ensures 100% immune to JS Template literal errors)
+                generateHtmlReport() {
+                    let bodyContent = '';
+                    this.players.forEach(p => {
+                        let statusClass = p.status === 'alive' ? 'bg-green-950 text-green-400' : 'bg-red-950 text-red-400';
+                        let statusText = p.status === 'alive' ? 'زنده' : 'حذف شده';
+                        let roleText = p.role || 'ثبت نشده';
+                        
+                        bodyContent += '<div class="bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-md mb-4">';
+                        bodyContent += '  <div class="flex justify-between items-center border-b border-gray-700 pb-2 mb-3">';
+                        bodyContent += '    <h3 class="font-bold text-white text-base">👤 پلیر ' + p.id + ': ' + p.name + '</h3>';
+                        bodyContent += '    <span class="px-2 py-1 rounded text-xs font-bold ' + statusClass + '">' + statusText + '</span>';
+                        bodyContent += '  </div>';
+                        bodyContent += '  <p class="text-xs text-gray-400 mb-2">ساید/نقش حدسی: <span class="text-red-400 font-bold">' + roleText + '</span></p>';
+                        bodyContent += '  <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">';
+                        
+                        this.dayOptions.forEach(day => {
+                            let targets = p.targets[day.id]?.join(', ') || 'هیچکس';
+                            let covers = p.covers[day.id]?.join(', ') || 'هیچکس';
+                            let notes = p.notes[day.id] || 'فاقد یادداشت';
+                            
+                            bodyContent += '    <div class="bg-gray-900 p-3 rounded-lg border-r-2 border-red-500">';
+                            bodyContent += '      <h4 class="font-bold text-gray-300 mb-1">' + day.label + '</h4>';
+                            bodyContent += '      <p><span class="text-gray-500">🎯 تارگت به:</span> <span class="text-red-400 font-bold">' + targets + '</span></p>';
+                            bodyContent += '      <p><span class="text-gray-500">🛡️ حمایت از:</span> <span class="text-green-400 font-bold">' + covers + '</span></p>';
+                            bodyContent += '      <p class="text-gray-400 mt-1 italic">"' + notes + '"</p>';
+                            bodyContent += '    </div>';
+                        });
+                        bodyContent += '  </div></div>';
+                    });
+
+                    let voteContent = '';
+                    this.dayOptions.filter(d => d.id !== 'intro').forEach(day => {
+                        voteContent += '<div class="bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-md mb-4">';
+                        voteContent += '  <h3 class="font-bold text-white text-sm mb-2 border-b border-gray-700 pb-1">🗓️ آرای ' + day.label + '</h3>';
+                        
+                        [1, 2].forEach(round => {
+                            let roundText = round === 1 ? 'اول (ورود به دفاعیه)' : 'دوم (اخراج نهایی)';
+                            voteContent += '<p class="text-xs text-yellow-500 font-bold mb-1">◽ راند ' + roundText + ':</p><div class="space-y-1 mb-2">';
+                            
+                            let dayVotes = this.votes.filter(v => v.day === day.id && v.round === round);
+                            if (dayVotes.length > 0) {
+                                dayVotes.forEach(v => {
+                                    let voterList = v.voters.join(', ') || 'هیچکس';
+                                    voteContent += '<p class="text-xs text-gray-300 bg-gray-900 p-2 rounded">کاندیدا <span class="text-white font-bold">[پلیر ' + v.candidateId + ']</span> با ' + v.voters.length + ' رای از طرف پلیرهای (' + voterList + ')</p>';
+                                });
+                            } else {
+                                voteContent += '<p class="text-xs text-gray-500 bg-gray-900 p-2 rounded italic">آرایی برای این راند ثبت نشده است.</p>';
+                            }
+                            voteContent += '</div>';
+                        });
+                        voteContent += '</div>';
+                    });
+
+                    let html = '';
+                    html += '<!DOCTYPE html>';
+                    html += '<html lang="fa" dir="rtl">';
+                    html += '<head>';
+                    html += '  <meta charset="UTF-8">';
+                    html += '  <meta name="viewport" content="width=device-width, initial-scale=1.0">';
+                    html += '  <title>گزارش وب بازی مافیا</title>';
+                    html += '  <script src="https://cdn.tailwindcss.com"><\/script>';
+                    html += '  <style>@import url("https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap"); body { font-family: "Vazirmatn", sans-serif; }</style>';
+                    html += '</head>';
+                    html += '<body class="bg-slate-950 text-gray-100 p-6 min-h-screen">';
+                    html += '  <div class="max-w-2xl mx-auto space-y-6">';
+                    html += '    <div class="text-center bg-gray-900 p-6 rounded-2xl border border-gray-800 shadow-xl">';
+                    html += '      <h1 class="text-2xl font-bold text-red-500">🏆 گزارش نهایی بازی مافیا</h1>';
+                    html += '      <p class="text-xs text-gray-500 mt-2">طراح ابزار نوت‌برداری: رضا پاکدل</p>';
+                    html += '    </div>';
+                    html += '    <h2 class="text-lg font-bold border-b border-gray-800 pb-1 text-red-400">👤 پرونده پلیرها</h2>';
+                    html += bodyContent;
+                    html += '    <h2 class="text-lg font-bold border-b border-gray-800 pb-1 text-yellow-500">🗳️ خلاصه رای‌گیری‌ها</h2>';
+                    html += voteContent;
+                    html += '    <footer class="text-center text-xs text-gray-600 pt-6">';
+                    html += '      گزارش خروجی دستیار تخصصی مافیا - رضا پاکدل © 2026';
+                    html += '    </footer>';
+                    html += '  </div>';
+                    html += '</body>';
+                    html += '</html>';
+                    
+                    return html;
+                },
+
+                downloadTxtReport() {
+                    const blob = new Blob([this.generateRawReport()], { type: 'text/plain;charset=utf-8' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = `Mafia_Report_${Date.now()}.txt`;
+                    link.click();
+                },
+
+                downloadHtmlReport() {
+                    const blob = new Blob([this.generateHtmlReport()], { type: 'text/html;charset=utf-8' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = `Mafia_Web_Report_${Date.now()}.html`;
+                    link.click();
+                },
+
+                shareReport() {
+                    if (navigator.share) {
+                        navigator.share({
+                            title: 'گزارش نهایی بازی مافیا',
+                            text: this.generateRawReport()
+                        }).catch(console.error);
+                    } else {
+                        alert('اشتراک‌گذاری خودکار در مرورگر شما پشتیبانی نمی‌شود. لطفاً فایل گزارش را دانلود کنید یا متن را کپی کنید.');
+                    }
+                },
+
+                copyReportToClipboard() {
+                    navigator.clipboard.writeText(this.generateRawReport()).then(() => {
+                        this.copiedToast = true;
+                        setTimeout(() => this.copiedToast = false, 2000);
+                    });
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -7,9 +7,8 @@
     <!-- Tailwind CSS & Alpine.js -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
-    <!-- PWA Manifest with valid 512x512 Icon for triggering official Chrome Install Button -->
-    <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%D8%AF%D8%B3%D8%AA%DB%8C%D8%A7%D8%B1%20%D9%85%D8%A7%D9%81%DB%8C%D8%A7%20-%20%D8%B1%D8%B6%D8%A7%20%D9%BE%D8%A7%DA%A1%D8%AF%D9%84%22%2C%22short_name%22%3A%22%D9%85%D8%A7%D9%81%DB%8C%D8%A7%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230b0f19%22%2C%22theme_color%22%3A%22%23dc2626%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fcdn-icons-png.flaticon.com%2F512%2F1053%2F1053210.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%22%7D%5D%7D">
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%D8%AF%D8%B3%D8%AA%DB%8C%D8%A7%D8%B1%20%D9%85%D8%A7%D9%81%DB%8C%D8%A7%20-%20%D8%B1%D8%B6%D8%A7%20%D9%BE%D8%A7%DA%A1%D8%AF%D9%84%22%2C%22short_name%22%3A%22%D9%85%D8%A7%D9%81%DB%8C%D8%A7%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230b0f19%22%2C%22theme_color%22%3A%22%23dc2626%22%7D">
     
     <!-- Apple Touch Icon for elegant iOS home screen icon representation -->
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1053/1053210.png">
@@ -19,10 +18,10 @@
         body { font-family: 'Vazirmatn', sans-serif; }
     </style>
 </head>
-<body class="bg-gray-955 text-gray-100 min-h-screen pb-24" x-data="mafiaApp()">
+<body class="bg-black text-zinc-100 min-h-screen pb-24" x-data="mafiaApp()">
 
     <!-- Header -->
-    <header class="bg-gray-900 p-4 shadow-md sticky top-0 z-40 flex justify-between items-center border-b border-gray-800">
+    <header class="bg-zinc-900 p-4 shadow-md sticky top-0 z-40 flex justify-between items-center border-b border-zinc-800">
         <div>
             <h1 class="text-base font-bold text-red-500">🎩 دستیار پیشرفته مافیا</h1>
             <p class="text-[10px] text-gray-500">طراح: رضا پاکدل</p>
@@ -36,30 +35,30 @@
     </header>
 
     <!-- SETUP SCREEN (Before Game Starts) -->
-    <div x-show="!gameStarted" class="p-6 max-w-md mx-auto my-8 bg-gray-900 rounded-2xl border border-gray-850 shadow-xl space-y-6">
+    <div x-show="!gameStarted" class="p-6 max-w-md mx-auto my-8 bg-zinc-900 rounded-2xl border border-zinc-800 shadow-xl space-y-6">
         <div class="text-center">
             <span class="text-4xl">⚙️</span>
             <h2 class="text-xl font-bold mt-2 text-red-500">تنظیمات بازی جدید</h2>
-            <p class="text-xs text-gray-400 mt-1">تعداد پلیرها را از لیست سریع انتخاب کنید:</p>
+            <p class="text-xs text-zinc-400 mt-1">تعداد پلیرها را از لیست سریع انتخاب کنید:</p>
         </div>
         
         <!-- Grid of fast player counts -->
         <div class="grid grid-cols-4 gap-2">
             <template x-for="count in [8, 10, 11, 12, 13, 14, 15, 16]">
-                <button @click="setPlayerCountAndStart(count)" class="bg-slate-950 border border-slate-800 hover:border-red-500 p-3 rounded-xl font-bold text-xs text-white transition" x-text="count + ' پلیر'"></button>
+                <button @click="setPlayerCountAndStart(count)" class="bg-black border border-zinc-800 hover:border-red-500 p-3 rounded-xl font-bold text-xs text-white transition" x-text="count + ' پلیر'"></button>
             </template>
         </div>
 
         <!-- Custom player counts -->
-        <div class="pt-4 border-t border-gray-800 space-y-2">
-            <label class="block text-xs text-gray-400">تعداد دلخواه پلیر:</label>
+        <div class="pt-4 border-t border-zinc-800 space-y-2">
+            <label class="block text-xs text-zinc-400">تعداد دلخواه پلیر:</label>
             <div class="flex gap-2">
-                <input type="number" x-model.number="customPlayerCount" placeholder="مثلا: 18" class="flex-1 bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-center font-bold text-white focus:outline-none focus:border-red-500">
+                <input type="number" x-model.number="customPlayerCount" placeholder="مثلا: 18" class="flex-1 bg-black border border-zinc-800 p-2.5 rounded-xl text-center font-bold text-white focus:outline-none focus:border-red-500">
                 <button @click="setPlayerCountAndStart(customPlayerCount)" class="bg-red-600 hover:bg-red-500 px-4 py-2.5 rounded-xl text-xs font-bold transition">تایید و شروع</button>
             </div>
         </div>
 
-        <div class="text-center pt-4 border-t border-gray-800 text-xs text-gray-500">
+        <div class="text-center pt-4 border-t border-zinc-800 text-xs text-zinc-500">
             طراحی و توسعه تخصصی: <span class="text-gray-400 font-bold">رضا پاکدل</span>
         </div>
     </div>
@@ -69,25 +68,25 @@
 
         <!-- TAB 1: DASHBOARD (Home Screen) -->
         <div x-show="activeTab === 'dashboard'" class="space-y-4 animate-fade-in">
-            <h2 class="text-lg font-bold border-b border-gray-800 pb-2">📊 دشبورد و وضعیت بازی</h2>
+            <h2 class="text-lg font-bold border-b border-zinc-800 pb-2">📊 دشبورد و وضعیت بازی</h2>
             
             <div class="grid grid-cols-2 gap-4">
-                <div class="bg-gray-900 p-4 rounded-xl text-center border border-gray-800">
+                <div class="bg-zinc-900 p-4 rounded-xl text-center border border-zinc-800">
                     <p class="text-gray-400 text-xs">پلیرهای زنده 🟢</p>
                     <p class="text-2xl font-bold text-green-400" x-text="players.filter(p => p.status === 'alive').length"></p>
                 </div>
-                <div class="bg-gray-900 p-4 rounded-xl text-center border border-gray-800">
+                <div class="bg-zinc-900 p-4 rounded-xl text-center border border-zinc-800">
                     <p class="text-gray-400 text-xs">پلیرهای حذف شده 💀</p>
                     <p class="text-2xl font-bold text-red-400" x-text="players.filter(p => p.status === 'dead').length"></p>
                 </div>
             </div>
 
             <!-- PINNED / FLAG LIST (نوبت صحبت) -->
-            <div class="bg-gray-900 p-4 rounded-xl border border-yellow-600/30">
+            <div class="bg-zinc-900 p-4 rounded-xl border border-yellow-600/30">
                 <h3 class="text-sm font-bold mb-3 text-yellow-500 flex items-center gap-1">📌 لیست نوبت صحبت (نشان‌شده‌ها)</h3>
                 <div class="space-y-2">
                     <template x-for="p in players.filter(p => p.flaggedForTalk)" :key="p.id">
-                        <div class="bg-gray-950 p-3 rounded-lg border-r-4 border-yellow-500 flex justify-between items-start gap-2">
+                        <div class="bg-black p-3 rounded-lg border-r-4 border-yellow-500 flex justify-between items-start gap-2">
                             <div class="flex-1">
                                 <p class="text-xs font-bold text-white" x-text="'پلیر ' + p.id + ': ' + p.name"></p>
                                 <p class="text-xs text-yellow-400/80 mt-1" x-text="p.talkNote || 'یادداشتی برای صحبت نوشته نشده است.'"></p>
@@ -102,13 +101,13 @@
             </div>
 
             <!-- Quick Player List Overview -->
-            <div class="bg-gray-900 p-4 rounded-xl border border-gray-800">
+            <div class="bg-zinc-900 p-4 rounded-xl border border-zinc-800">
                 <h3 class="text-sm font-bold mb-3 text-gray-300">وضعیت سریع پلیرها</h3>
                 <div class="grid grid-cols-4 gap-2">
                     <template x-for="player in players" :key="player.id">
                         <button 
                             @click="viewPlayerProfile(player.id)"
-                            :class="player.status === 'dead' ? 'bg-gray-800 text-gray-600 line-through border-transparent' : 'bg-gray-955 text-white border border-gray-800'"
+                            :class="player.status === 'dead' ? 'bg-zinc-800 text-zinc-600 line-through border-transparent' : 'bg-black text-white border border-zinc-800'"
                             class="p-2 rounded-lg text-center text-xs font-bold truncate">
                             <span x-text="player.id + '.' + player.name"></span>
                         </button>
@@ -120,11 +119,11 @@
         <!-- TAB 2: NOTES SECTION (Step-by-Step) -->
         <div x-show="activeTab === 'notes'" class="space-y-4">
             <!-- Day Selector Bar -->
-            <div class="flex overflow-x-auto gap-2 py-1 border-b border-gray-800 scrollbar-none">
+            <div class="flex overflow-x-auto gap-2 py-1 border-b border-zinc-800 scrollbar-none">
                 <template x-for="day in dayOptions" :key="day.id">
                     <button 
                         @click="currentDay = day.id"
-                        :class="currentDay === day.id ? 'bg-red-600 text-white' : 'bg-gray-900 text-gray-400'"
+                        :class="currentDay === day.id ? 'bg-red-600 text-white' : 'bg-zinc-900 text-zinc-400'"
                         class="px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition"
                         x-text="day.label">
                     </button>
@@ -132,20 +131,20 @@
             </div>
 
             <!-- Player Step-by-Step Box -->
-            <div class="bg-gray-900 p-4 rounded-xl border border-gray-800">
+            <div class="bg-zinc-900 p-4 rounded-xl border border-zinc-800">
                 
                 <!-- Prev / Next Buttons AT THE TOP of the Card -->
-                <div class="flex justify-between items-center bg-black p-2 rounded-xl mb-4 border border-gray-800">
-                    <button @click="prevPlayer()" class="bg-gray-800 hover:bg-gray-750 text-white px-3 py-1.5 rounded-lg text-xs font-bold">◀️ قبلی</button>
+                <div class="flex justify-between items-center bg-black p-2 rounded-xl mb-4 border border-zinc-800">
+                    <button @click="prevPlayer()" class="bg-zinc-800 hover:bg-zinc-750 text-white px-3 py-1.5 rounded-lg text-xs font-bold">◀️ قبلی</button>
                     <div class="flex items-center gap-1.5">
                         <span class="bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs" x-text="players[currentNotePlayerIndex].id"></span>
-                        <input type="text" x-model="players[currentNotePlayerIndex].name" class="bg-transparent border-b border-gray-800 font-bold text-sm text-center focus:outline-none focus:border-red-500 w-28 text-white">
+                        <input type="text" x-model="players[currentNotePlayerIndex].name" class="bg-transparent border-b border-zinc-800 font-bold text-sm text-center focus:outline-none focus:border-red-500 w-28 text-white">
                     </div>
                     <button @click="nextPlayer()" class="bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold">بعدی ▶️</button>
                 </div>
 
                 <div class="flex justify-between items-center mb-4">
-                    <span class="text-xs text-gray-400">ویرایش پلیر <span x-text="currentNotePlayerIndex + 1"></span> از <span x-text="playerCount"></span></span>
+                    <span class="text-xs text-zinc-400">ویرایش پلیر <span x-text="currentNotePlayerIndex + 1"></span> از <span x-text="playerCount"></span></span>
                     <!-- Alive/Dead Switch -->
                     <button 
                         @click="togglePlayerStatus(currentNotePlayerIndex)"
@@ -156,20 +155,20 @@
                 </div>
 
                 <!-- Pinned for Speech (نشان برای صحبت) -->
-                <div class="mb-4 bg-gray-955 p-3 rounded-lg border border-gray-850">
+                <div class="mb-4 bg-black p-3 rounded-lg border border-zinc-800">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-gray-300">📌 تیک نشان برای نوبت صحبت:</span>
-                        <input type="checkbox" x-model="players[currentNotePlayerIndex].flaggedForTalk" class="w-4 h-4 text-red-600 bg-gray-900 border-gray-700 rounded focus:ring-red-500">
+                        <span class="text-xs font-bold text-zinc-300">📌 تیک نشان برای نوبت صحبت:</span>
+                        <input type="checkbox" x-model="players[currentNotePlayerIndex].flaggedForTalk" class="w-4 h-4 text-red-600 bg-gray-900 border-zinc-700 rounded focus:ring-red-500">
                     </div>
                     <div x-show="players[currentNotePlayerIndex].flaggedForTalk" class="mt-2">
-                        <input type="text" x-model="players[currentNotePlayerIndex].talkNote" placeholder="علت نشان کردن یا خلاصه نوت برای صحبت..." class="w-full bg-gray-900 border border-gray-850 p-2 rounded text-xs text-white placeholder-gray-500 focus:outline-none">
+                        <input type="text" x-model="players[currentNotePlayerIndex].talkNote" placeholder="علت نشان کردن یا خلاصه نوت برای صحبت..." class="w-full bg-gray-900 border border-zinc-800 p-2 rounded text-xs text-white placeholder-gray-500 focus:outline-none">
                     </div>
                 </div>
 
                 <!-- Input: Guess Role -->
                 <div class="mb-4">
                     <label class="block text-xs text-gray-400 mb-1">نقش / ساید حدسی:</label>
-                    <input type="text" x-model="players[currentNotePlayerIndex].role" placeholder="مثلاً: مافیا، تفنگدار..." class="w-full bg-gray-950 border border-gray-850 p-2 rounded-lg text-sm text-white focus:outline-none focus:border-red-500">
+                    <input type="text" x-model="players[currentNotePlayerIndex].role" placeholder="مثلاً: مافیا، تفنگدار..." class="w-full bg-black border border-zinc-800 p-2 rounded-lg text-sm text-white focus:outline-none focus:border-red-500">
                 </div>
 
                 <!-- Select Targets for Current Day -->
@@ -180,7 +179,7 @@
                             <button 
                                 x-show="i !== players[currentNotePlayerIndex].id"
                                 @click="toggleTarget(currentNotePlayerIndex, currentDay, i)"
-                                :class="hasTarget(currentNotePlayerIndex, currentDay, i) ? 'bg-red-600 border-red-500 text-white font-bold' : 'bg-gray-950 border border-gray-850 text-gray-500'"
+                                :class="hasTarget(currentNotePlayerIndex, currentDay, i) ? 'bg-red-600 border-red-500 text-white font-bold' : 'bg-black border border-zinc-800 text-zinc-400'"
                                 class="p-1.5 rounded text-xs font-bold text-center transition"
                                 x-text="i">
                             </button>
@@ -196,7 +195,7 @@
                             <button 
                                 x-show="i !== players[currentNotePlayerIndex].id"
                                 @click="toggleCover(currentNotePlayerIndex, currentDay, i)"
-                                :class="hasCover(currentNotePlayerIndex, currentDay, i) ? 'bg-green-600 border-green-500 text-white font-bold' : 'bg-gray-950 border border-gray-850 text-gray-500'"
+                                :class="hasCover(currentNotePlayerIndex, currentDay, i) ? 'bg-green-600 border-green-500 text-white font-bold' : 'bg-black border border-zinc-800 text-zinc-400'"
                                 class="p-1.5 rounded text-xs font-bold text-center transition"
                                 x-text="i">
                             </button>
@@ -211,7 +210,7 @@
                         x-model="players[currentNotePlayerIndex].notes[currentDay]" 
                         rows="3" 
                         placeholder="نکات گفتاری، فکت‌ها، سوتی‌ها..." 
-                        class="w-full bg-gray-955 border border-gray-850 p-2 rounded-lg text-xs text-white focus:outline-none focus:border-red-500">
+                        class="w-full bg-black border border-zinc-800 p-2 rounded-lg text-xs text-white focus:outline-none focus:border-red-500">
                     </textarea>
                 </div>
             </div>
@@ -220,7 +219,7 @@
         <!-- TAB 3: VOTING SYSTEM -->
         <div x-show="activeTab === 'voting'" class="space-y-4">
             <!-- Voting Day Selector -->
-            <div class="flex overflow-x-auto gap-2 py-1 border-b border-gray-800">
+            <div class="flex overflow-x-auto gap-2 py-1 border-b border-zinc-800">
                 <template x-for="day in dayOptions.filter(d => d.id !== 'intro')" :key="day.id">
                     <button 
                         @click="votingDay = day.id"
@@ -232,16 +231,16 @@
             </div>
 
             <!-- Round Toggle -->
-            <div class="flex rounded-lg bg-gray-900 p-1 border border-gray-800">
+            <div class="flex rounded-lg bg-gray-900 p-1 border border-zinc-800">
                 <button @click="votingRound = 1" :class="votingRound === 1 ? 'bg-red-600 text-white' : 'text-gray-400'" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition">راند اول (دفاعیه)</button>
                 <button @click="votingRound = 2" :class="votingRound === 2 ? 'bg-red-600 text-white' : 'text-gray-400'" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition">راند دوم (اخراج)</button>
             </div>
 
             <!-- STEP-BY-STEP VOTING INTERFACE -->
-            <div class="bg-gray-900 p-4 rounded-xl border border-gray-800 space-y-4">
+            <div class="bg-gray-900 p-4 rounded-xl border border-zinc-800 space-y-4">
                 
                 <!-- Prev / Next Buttons AT THE TOP of the Card -->
-                <div class="flex justify-between items-center bg-black p-2 rounded-xl border border-gray-800">
+                <div class="flex justify-between items-center bg-black p-2 rounded-xl border border-zinc-800">
                     <button @click="prevVotingCandidate()" class="bg-gray-800 hover:bg-gray-750 text-white px-3 py-1.5 rounded-lg text-xs font-bold">◀️ قبلی</button>
                     <div class="flex items-center gap-1.5">
                         <span class="bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs" x-text="currentVotingCandidateIndex + 1"></span>
@@ -263,7 +262,7 @@
                             <button 
                                 x-show="i !== currentVotingCandidateIndex + 1"
                                 @click="toggleVote(votingDay, votingRound, currentVotingCandidateIndex + 1, i)"
-                                :class="isVoted(votingDay, votingRound, currentVotingCandidateIndex + 1, i) ? 'bg-red-600 border-red-500 text-white' : 'bg-gray-955 border-gray-850 text-gray-500'"
+                                :class="isVoted(votingDay, votingRound, currentVotingCandidateIndex + 1, i) ? 'bg-red-600 border-red-500 text-white' : 'bg-black border border-zinc-800 text-gray-500'"
                                 class="p-2.5 border rounded-lg text-xs font-bold transition"
                                 x-text="i">
                             </button>
@@ -272,7 +271,7 @@
                 </div>
 
                 <!-- Summary -->
-                <div class="bg-gray-955 p-2.5 rounded-lg flex justify-between items-center text-xs">
+                <div class="bg-gray-950 p-2.5 rounded-lg flex justify-between items-center text-xs">
                     <span class="text-gray-400">جمع کل آرا:</span>
                     <span class="bg-red-950 text-red-400 font-bold px-2.5 py-1 rounded-lg" x-text="getVoteCount(votingDay, votingRound, currentVotingCandidateIndex + 1) + ' رای'"></span>
                 </div>
@@ -281,19 +280,19 @@
 
         <!-- TAB 4: PLAYER DETAILED PROFILE -->
         <div x-show="activeTab === 'profiles'" class="space-y-4">
-            <h2 class="text-lg font-bold border-b border-gray-850 pb-2">📂 پرونده تجمیعی پلیر</h2>
+            <h2 class="text-lg font-bold border-b border-zinc-800 pb-2">📂 پرونده تجمیعی پلیر</h2>
             
             <div>
-                <label class="block text-xs text-slate-400 mb-1">انتخاب پلیر:</label>
-                <select x-model.number="profilePlayerId" class="w-full bg-gray-900 border border-gray-800 p-2.5 rounded-lg text-sm text-white focus:outline-none">
+                <label class="block text-xs text-gray-400 mb-1">انتخاب پلیر:</label>
+                <select x-model.number="profilePlayerId" class="w-full bg-gray-900 border border-zinc-800 p-2.5 rounded-lg text-sm text-white focus:outline-none">
                     <template x-for="p in players" :key="p.id">
                         <option :value="p.id" x-text="p.id + '. ' + p.name"></option>
                     </template>
                 </select>
             </div>
 
-            <div class="bg-gray-900 p-5 rounded-xl border border-gray-805 space-y-4">
-                <div class="flex justify-between items-center border-b border-gray-800 pb-3">
+            <div class="bg-gray-900 p-5 rounded-xl border border-zinc-800 space-y-4">
+                <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
                     <div>
                         <h3 class="text-xl font-bold" x-text="players[profilePlayerId-1].name"></h3>
                         <p class="text-xs text-gray-400 mt-1">حدس ساید: <span class="text-red-400 font-bold" x-text="players[profilePlayerId-1].role || 'نامعلوم'"></span></p>
@@ -315,7 +314,7 @@
                     </template>
                 </div>
 
-                <div class="space-y-3 border-t border-gray-855 pt-3">
+                <div class="space-y-3 border-t border-zinc-800 pt-3">
                     <h4 class="text-sm font-bold text-gray-300">📊 تاریخچه آرای ثبت شده پلیر:</h4>
                     <template x-for="day in dayOptions.filter(d => d.id !== 'intro')" :key="day.id">
                         <div class="bg-black p-2 rounded text-xs space-y-1 border border-gray-800">
@@ -330,19 +329,19 @@
 
         <!-- TAB 5: GAME OVER / EXPORT SCREEN (Dedicated interface, bottom menu hidden) -->
         <div x-show="activeTab === 'gameover'" class="space-y-6 animate-fade-in pb-12">
-            <div class="bg-gray-900 border border-gray-800 p-6 rounded-2xl text-center space-y-4">
+            <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl text-center space-y-4">
                 <span class="text-5xl">🏁</span>
                 <h2 class="text-2xl font-bold text-red-500">بازی به پایان رسید!</h2>
                 <p class="text-xs text-gray-400 leading-relaxed">یادداشت‌ها، آمار، آرا و تحلیل‌های بازی مافیا با موفقیت ثبت شدند. شما می‌توانید فایل گزارش را در چند قالب شیک دریافت کنید.</p>
             </div>
 
             <!-- Return to Game Button -->
-            <button @click="activeTab = 'dashboard'" class="w-full bg-gray-800 hover:bg-gray-750 text-gray-200 py-3 rounded-xl font-bold text-xs transition flex justify-center items-center gap-2 border border-gray-750">
+            <button @click="activeTab = 'dashboard'" class="w-full bg-zinc-800 hover:bg-zinc-750 text-gray-200 py-3 rounded-xl font-bold text-xs transition flex justify-center items-center gap-2 border border-zinc-700">
                 <span>↩️</span> بازگشت به بازی و لغو اتمام
             </button>
 
-            <div class="bg-gray-900 border border-gray-800 p-5 rounded-2xl space-y-4">
-                <h3 class="text-sm font-bold text-gray-200 border-b border-gray-800 pb-2">📂 خروجی‌های مختلف گزارش بازی:</h3>
+            <div class="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl space-y-4">
+                <h3 class="text-sm font-bold text-gray-200 border-b border-zinc-800 pb-2">📂 خروجی‌های مختلف گزارش بازی:</h3>
                 
                 <div class="grid grid-cols-1 gap-2">
                     <!-- Modern Styled Web Page (HTML) Export -->
@@ -350,7 +349,7 @@
                         <span>🌐</span> دانلود گزارش وب شیک رنگی (HTML)
                     </button>
                     <!-- Plain text (.TXT) Export -->
-                    <button @click="downloadTxtReport()" class="w-full bg-slate-950 border border-gray-800 hover:border-gray-750 text-white py-2.5 rounded-xl font-bold text-xs transition flex justify-center items-center gap-2">
+                    <button @click="downloadTxtReport()" class="w-full bg-black border border-zinc-800 hover:border-zinc-700 text-white py-2.5 rounded-xl font-bold text-xs transition flex justify-center items-center gap-2">
                         <span>📄</span> دانلود فایل گزارش ساده متنی (TXT)
                     </button>
                     <!-- Share natively via mobile OS -->
@@ -358,16 +357,16 @@
                         <span>📤</span> اشتراک‌گذاری مستقیم گزارش (واتس‌اپ/تلگرام)
                     </button>
                     <!-- Copy directly to Clipboard -->
-                    <button @click="copyReportToClipboard()" class="w-full bg-slate-950 border border-gray-800 text-slate-350 py-2.5 rounded-xl font-bold text-xs transition flex justify-center items-center gap-2">
+                    <button @click="copyReportToClipboard()" class="w-full bg-black border border-zinc-800 text-zinc-350 py-2.5 rounded-xl font-bold text-xs transition flex justify-center items-center gap-2">
                         <span x-text="copiedToast ? '✔️ کپی شد!' : '📋 کپی کردن گزارش در حافظه'"></span>
                     </button>
                 </div>
             </div>
 
             <!-- Preview panel of the text report -->
-            <div class="bg-gray-900 border border-gray-800 p-4 rounded-2xl space-y-2">
+            <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl space-y-2">
                 <h3 class="text-xs font-bold text-gray-400">🔎 پیش‌نمایش متنی گزارش:</h3>
-                <textarea readonly class="w-full h-40 bg-black text-gray-450 p-3 rounded-xl text-[11px] font-mono leading-relaxed focus:outline-none border border-gray-800" x-text="generateRawReport()"></textarea>
+                <textarea readonly class="w-full h-40 bg-black text-zinc-400 p-3 rounded-xl text-[11px] font-mono leading-relaxed focus:outline-none border border-zinc-800" x-text="generateRawReport()"></textarea>
             </div>
 
             <!-- Custom Internal Reset Confirmation Button -->
@@ -396,20 +395,20 @@
 
     <!-- Custom Reset Confirmation Modal (Replaces browser confirm) -->
     <div x-show="showResetModal" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 animate-fade-in">
-        <div class="bg-gray-900 border border-gray-800 p-6 rounded-2xl max-w-sm w-full text-center space-y-4">
+        <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl max-w-sm w-full text-center space-y-4">
             <span class="text-3xl">⚠️</span>
             <h3 class="text-lg font-bold text-red-500">حذف اطلاعات بازی؟</h3>
             <p class="text-xs text-gray-400 leading-relaxed">آیا مطمئنید که می‌خواهید بازی فعلی را پاک کنید؟ تمام داده‌ها حذف شده و به صفحه تنظیمات اولیه باز خواهید گشت.</p>
             <div class="flex gap-2">
                 <button @click="confirmResetGame()" class="flex-1 bg-red-600 hover:bg-red-500 text-white py-2.5 rounded-xl font-bold text-xs transition">بله، حذف و شروع جدید 🔄</button>
-                <button @click="showResetModal = false" class="flex-1 bg-gray-800 hover:bg-gray-750 text-slate-350 py-2.5 rounded-xl font-bold text-xs transition">خیر، بازگشت ❌</button>
+                <button @click="showResetModal = false" class="flex-1 bg-slate-800 hover:bg-slate-750 text-slate-300 py-2.5 rounded-xl font-bold text-xs transition">خیر، بازگشت ❌</button>
             </div>
         </div>
     </div>
 
     <!-- PWA Installation Guide Modal -->
     <div x-show="showInstallGuide" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" x-transition>
-        <div class="bg-gray-900 border border-gray-800 p-6 rounded-2xl max-w-sm w-full space-y-4">
+        <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl max-w-sm w-full space-y-4">
             <h3 class="text-lg font-bold text-blue-400 flex items-center gap-1">📲 راهنمای نصب اپلیکیشن</h3>
             
             <div class="space-y-3 text-xs leading-relaxed text-gray-300">
@@ -697,8 +696,8 @@
                         let statusText = p.status === 'alive' ? 'زنده' : 'حذف شده';
                         let roleText = p.role || 'ثبت نشده';
                         
-                        bodyContent += '<div class="bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-md mb-4">';
-                        bodyContent += '  <div class="flex justify-between items-center border-b border-gray-700 pb-2 mb-3">';
+                        bodyContent += '<div class="bg-zinc-900 p-4 rounded-xl border border-zinc-800 shadow-md mb-4">';
+                        bodyContent += '  <div class="flex justify-between items-center border-b border-zinc-800 pb-2 mb-3">';
                         bodyContent += '    <h3 class="font-bold text-white text-base">👤 پلیر ' + p.id + ': ' + p.name + '</h3>';
                         bodyContent += '    <span class="px-2 py-1 rounded text-xs font-bold ' + statusClass + '">' + statusText + '</span>';
                         bodyContent += '  </div>';
@@ -710,7 +709,7 @@
                             let covers = p.covers[day.id]?.join(', ') || 'هیچکس';
                             let notes = p.notes[day.id] || 'فاقد یادداشت';
                             
-                            bodyContent += '    <div class="bg-gray-900 p-3 rounded-lg border-r-2 border-red-500">';
+                            bodyContent += '    <div class="bg-black p-3 rounded-lg border-r-2 border-red-500">';
                             bodyContent += '      <h4 class="font-bold text-gray-300 mb-1">' + day.label + '</h4>';
                             bodyContent += '      <p><span class="text-gray-500">🎯 تارگت به:</span> <span class="text-red-400 font-bold">' + targets + '</span></p>';
                             bodyContent += '      <p><span class="text-gray-500">🛡️ حمایت از:</span> <span class="text-green-400 font-bold">' + covers + '</span></p>';
@@ -722,8 +721,8 @@
 
                     let voteContent = '';
                     this.dayOptions.filter(d => d.id !== 'intro').forEach(day => {
-                        voteContent += '<div class="bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-md mb-4">';
-                        voteContent += '  <h3 class="font-bold text-white text-sm mb-2 border-b border-gray-700 pb-1">🗓️ آرای ' + day.label + '</h3>';
+                        voteContent += '<div class="bg-zinc-900 p-4 rounded-xl border border-zinc-800 shadow-md mb-4">';
+                        voteContent += '  <h3 class="font-bold text-white text-sm mb-2 border-b border-zinc-800 pb-1">🗓️ آرای ' + day.label + '</h3>';
                         
                         [1, 2].forEach(round => {
                             let roundText = round === 1 ? 'اول (ورود به دفاعیه)' : 'دوم (اخراج نهایی)';
@@ -733,10 +732,10 @@
                             if (dayVotes.length > 0) {
                                 dayVotes.forEach(v => {
                                     let voterList = v.voters.join(', ') || 'هیچکس';
-                                    voteContent += '<p class="text-xs text-gray-300 bg-gray-900 p-2 rounded">کاندیدا <span class="text-white font-bold">[پلیر ' + v.candidateId + ']</span> با ' + v.voters.length + ' رای از طرف پلیرهای (' + voterList + ')</p>';
+                                    voteContent += '<p class="text-xs text-gray-300 bg-black p-2 rounded">کاندیدا <span class="text-white font-bold">[پلیر ' + v.candidateId + ']</span> با ' + v.voters.length + ' رای از طرف پلیرهای (' + voterList + ')</p>';
                                 });
                             } else {
-                                voteContent += '<p class="text-xs text-gray-500 bg-gray-900 p-2 rounded italic">آرایی برای این راند ثبت نشده است.</p>';
+                                voteContent += '<p class="text-xs text-gray-500 bg-black p-2 rounded italic">آرایی برای این راند ثبت نشده است.</p>';
                             }
                             voteContent += '</div>';
                         });
@@ -753,15 +752,15 @@
                     html += '  <script src="https://cdn.tailwindcss.com"><\/script>';
                     html += '  <style>@import url("https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap"); body { font-family: "Vazirmatn", sans-serif; }</style>';
                     html += '</head>';
-                    html += '<body class="bg-slate-950 text-gray-100 p-6 min-h-screen">';
+                    html += '<body class="bg-black text-gray-100 p-6 min-h-screen">';
                     html += '  <div class="max-w-2xl mx-auto space-y-6">';
-                    html += '    <div class="text-center bg-gray-900 p-6 rounded-2xl border border-gray-800 shadow-xl">';
+                    html += '    <div class="text-center bg-zinc-900 p-6 rounded-2xl border border-zinc-800 shadow-xl">';
                     html += '      <h1 class="text-2xl font-bold text-red-500">🏆 گزارش نهایی بازی مافیا</h1>';
                     html += '      <p class="text-xs text-gray-500 mt-2">طراح ابزار نوت‌برداری: رضا پاکدل</p>';
                     html += '    </div>';
-                    html += '    <h2 class="text-lg font-bold border-b border-gray-800 pb-1 text-red-400">👤 پرونده پلیرها</h2>';
+                    html += '    <h2 class="text-lg font-bold border-b border-zinc-800 pb-1 text-red-400">👤 پرونده پلیرها</h2>';
                     html += bodyContent;
-                    html += '    <h2 class="text-lg font-bold border-b border-gray-800 pb-1 text-yellow-500">🗳️ خلاصه رای‌گیری‌ها</h2>';
+                    html += '    <h2 class="text-lg font-bold border-b border-zinc-800 pb-1 text-yellow-500">🗳️ خلاصه رای‌گیری‌ها</h2>';
                     html += voteContent;
                     html += '    <footer class="text-center text-xs text-gray-600 pt-6">';
                     html += '      گزارش خروجی دستیار تخصصی مافیا - رضا پاکدل © 2026';
